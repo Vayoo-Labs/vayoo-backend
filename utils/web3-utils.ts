@@ -1,9 +1,10 @@
 import { bs58 } from "@project-serum/anchor/dist/cjs/utils/bytes";
 import { Connection } from "@solana/web3.js";
 import * as anchor from "@project-serum/anchor";
+import { RPC } from "./constants";
 
 export const getConnection = () => {
-    const endpointUrl = process.env.RPC_ENDPOINT || 'https://rpc.helius.xyz/?api-key=7df1283e-42ff-42dd-8a74-2ca2883178dd';
+    const endpointUrl = RPC;
     const url = new URL(endpointUrl);
     const hostURL = url.href.replace(`${url.username}:${url.password}@`, "");
     const headers: any = {};

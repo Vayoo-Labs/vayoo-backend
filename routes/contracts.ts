@@ -1,7 +1,5 @@
 import express, { Request, Response } from 'express';
-import { readFile } from 'fs';
 import { getAllContractInfo } from '../api/contracts';
-import { DATA_STORE_PATH } from '../utils/constants';
 
 export const contractRouter = express.Router();
 
