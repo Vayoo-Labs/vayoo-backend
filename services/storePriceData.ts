@@ -29,9 +29,11 @@ export async function storePriceDataService() {
         }
     }))
     allContractsInfo.map((contract) => {
-        setInterval(
-            () => { storeVayooPriceData(vayooProgram.provider.connection, new PublicKey(contract.whirlpool_key), whirlpoolClient, contract.account, new PublicKey(contract.pyth_feed_key)) }
-            , 15000);
+        if(!contract.account.isSettling) {
+            setInterval(
+                () => { storeVayooPriceData(vayooProgram.provider.connection, new PublicKey(contract.whirlpool_key), whirlpoolClient, contract.account, new PublicKey(contract.pyth_feed_key)) }
+                , 15000);
+        }
     })
     console.log('Store Price Data Service Initialized');
 }
