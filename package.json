@@ -19,6 +19,7 @@
     "@solana/spl-token": "^0.3.7",
     "@solana/spl-token-v2": "yarn:@solana/spl-token@^0.3.7",
     "@solana/web3.js": "^1.74.0",
+    "@switchboard-xyz/solana.js": "^2.1.4",
     "@types/cors": "^2.8.13",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",

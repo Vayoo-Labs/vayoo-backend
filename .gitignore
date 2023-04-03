@@ -3,3 +3,5 @@ node_modules
 dist
 .env
 _data
+.env.prod.example
+.env.dev.example

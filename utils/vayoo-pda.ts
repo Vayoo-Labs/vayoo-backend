@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { utils } from '@project-serum/anchor';
-import { VAYOO_CONTRACT_ID as PID, SUPER_USER_KEY, COLLATERAL_MINT } from './constants';
+import { VAYOO_CONTRACT_KEY as PID, SUPER_USER_KEY, COLLATERAL_MINT } from './constants';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 const GLOBAL_STATE_SEED = 'GLOBAL_STATE_SEED';

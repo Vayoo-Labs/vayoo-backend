@@ -2,9 +2,10 @@ import { buildWhirlpoolClient, ORCA_WHIRLPOOLS_CONFIG, ORCA_WHIRLPOOL_PROGRAM_ID
 import { getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token-v2";
 import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
 import { getVayooProgramInstance } from ".";
-import { COLLATERAL_MINT, TICK_SPACING, USDC_MINT } from "./constants";
+import { COLLATERAL_MINT, DUMMY_PYTH_KEY, DUMMY_SWITCHBOARD_KEY, TICK_SPACING, USDC_MINT } from "./constants";
 import { getContractStatePDA, getEscrowVaultCollateralPDA, getFreeVaultCollateralPDA, getFreeVaultScontractPDA, getLcontractMintPDA, getLockedVaultCollateralPDA, getLockedVaultScontractPDA, getScontractMintPDA, getUserStatePDA } from "./vayoo-pda";
 import { getWallet } from "./web3-utils";
+import { OracleFeedType } from "./types";
 
 export async function getVayooAccounts(contractName: string, userKey: PublicKey) {
     const vayooProgram = await getVayooProgramInstance();
@@ -15,6 +16,9 @@ export async function getVayooAccounts(contractName: string, userKey: PublicKey)
 
     const whirlpoolKey = PDAUtil.getWhirlpool(ORCA_WHIRLPOOL_PROGRAM_ID, ORCA_WHIRLPOOLS_CONFIG, contractState.lcontractMint, contractState.collateralMint, TICK_SPACING);
     const whirlpoolClient = buildWhirlpoolClient(WhirlpoolContext.from(vayooProgram.provider.connection, wallet, ORCA_WHIRLPOOL_PROGRAM_ID));
+
+    let pythFeed = new PublicKey(DUMMY_PYTH_KEY);
+    let switchboardFeed = new PublicKey(DUMMY_SWITCHBOARD_KEY);
 
     try {
         const whirlpool = await whirlpoolClient.getPool(whirlpoolKey.publicKey, true);
@@ -58,6 +62,12 @@ export async function getVayooAccounts(contractName: string, userKey: PublicKey)
             true
         );
 
+        if (contractState.feedType == OracleFeedType.Pyth) {
+            pythFeed = contractState.oracleFeedKey
+        } else if (contractState.feedType == OracleFeedType.Switchboard) {
+            switchboardFeed = contractState.oracleFeedKey
+        }
+        
         const accounts = {
             collateralMint: USDC_MINT,
             systemProgram: SystemProgram.programId,
@@ -78,7 +88,8 @@ export async function getVayooAccounts(contractName: string, userKey: PublicKey)
             mmLcontractAta,
             mmCollateralWalletAta: userCollateralAta,
             vaultLcontractAta,
-            pythFeed: contractState.pythFeedId,
+            pythFeed,
+            switchboardFeed,
             whirlpoolProgram: ORCA_WHIRLPOOL_PROGRAM_ID,
             whirlpool: whirlpoolKey,
             tokenVaultA: whirlpoolState.tokenVaultA,
