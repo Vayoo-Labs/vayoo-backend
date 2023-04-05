@@ -1,7 +1,7 @@
 import { dbpool } from "../utils/db"
 
 export const getAllContractInfo = async () => {
-    const results = await dbpool.promise().query('SELECT * FROM CONTRACTS LEFT JOIN MARKETS ON CONTRACTS.market_name = MARKETS.market_name');
+    const results = await dbpool.promise().query('SELECT * FROM CONTRACTS LEFT JOIN MARKETS ON CONTRACTS.market_name = MARKETS.market_name ORDER BY created_on DESC');
     return results[0];
 }
 
