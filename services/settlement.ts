@@ -20,7 +20,7 @@ export async function settlementService() {
         const timeNow = Date.now() / 1000; // Current time in seconds
         const contractEndingTime: number = contract.account.endingTime.toNumber();
         const timeToMaturity = contractEndingTime - timeNow;
-        console.log("Contract Name :%s, Maturity: %d", contract.account.name, timeToMaturity)
+        console.log("Contract Name :%s, Maturity: %d", contract.account.name, timeToMaturity);
         if (!contract.account.isSettling && timeToMaturity > -DAY_IN_SECONDS) { // If timeToMaturity  < day_in_seconds, don't try to trigger
             setTimeout(async () => await triggerAndSettle(contract.publicKey), (timeToMaturity + 5) * 1000)
         }
@@ -30,6 +30,7 @@ export async function settlementService() {
 
 async function triggerAndSettle(contractStateKey: PublicKey) {
     const vayooProgram = await getVayooProgramInstance();
+    const vayooProgramPremium = await getVayooProgramInstance(true);
     const contractState = await vayooProgram.account.contractState.fetch(contractStateKey);
     const vayooAccounts = await getVayooAccounts(contractState.name, vayooProgram.provider.publicKey!);
     if (!vayooAccounts) {
@@ -46,7 +47,7 @@ async function triggerAndSettle(contractStateKey: PublicKey) {
         console.log("Triggering Settling contract Name: ", contractState.name);
         console.log("Tx Hash:", txHash);
 
-        const allUserStates = await vayooProgram.account.userState.all();
+        const allUserStates = await vayooProgramPremium.account.userState.all();
 
         Promise.all(allUserStates.filter((userState) => {
             return userState.account.contractAccount.equals(contractStateKey)

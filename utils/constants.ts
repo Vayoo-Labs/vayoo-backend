@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config()
 
 export const RPC = process.env.RPC || "https://api.metaplex.solana.com/"
-// export const RPC = "https://polished-tame-market.solana-mainnet.discover.quiknode.pro/5a05dcbb634a417d3276611d035ad7ac5fd178e6/";
+export const PREMIUM_RPC = "https://polished-tame-market.solana-mainnet.discover.quiknode.pro/5a05dcbb634a417d3276611d035ad7ac5fd178e6/";
 
 const VAYOO_CONTRACT_ID = process.env.VAYOO_PROGRAM_ID || '6ccnZSaDcMwKe1xwHbubs4q2GdPEr7hSK59A3GddJpte';
 export const VAYOO_CONTRACT_KEY = new PublicKey(VAYOO_CONTRACT_ID);

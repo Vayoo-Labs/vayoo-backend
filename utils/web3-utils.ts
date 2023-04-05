@@ -3,8 +3,8 @@ import { Connection } from "@solana/web3.js";
 import * as anchor from "@project-serum/anchor";
 import { RPC } from "./constants";
 
-export const getConnection = () => {
-    const endpointUrl = RPC;
+export const getConnection = (endpoint: string = RPC) => {
+    const endpointUrl = endpoint;
     const url = new URL(endpointUrl);
     const hostURL = url.href.replace(`${url.username}:${url.password}@`, "");
     const headers: any = {};
