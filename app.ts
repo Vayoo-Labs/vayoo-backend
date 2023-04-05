@@ -18,7 +18,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Express + TypeScript Server');
+  res.send('Vayoo Backend, you are not supposed to be here');
 });
 
 app.use('/priceFeed', priceFeedRouter);
