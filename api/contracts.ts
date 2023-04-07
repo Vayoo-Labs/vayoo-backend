@@ -9,3 +9,8 @@ export const getAllContracts = async () => {
     const results = await dbpool.promise().query('SELECT * FROM CONTRACTS');
     return results[0];
 }
+
+export const getContract = async (contractName: string) => {
+    const results = await dbpool.promise().query(`SELECT * FROM CONTRACTS WHERE name = '${contractName}'`);
+    return results[0][0];
+}
