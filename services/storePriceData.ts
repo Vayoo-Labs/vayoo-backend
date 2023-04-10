@@ -9,13 +9,18 @@ import { getConnection, getWallet } from "../utils/web3-utils";
 import { existsSync, mkdirSync, readFile, writeFile } from "fs";
 import { parsePriceData } from "@pythnetwork/client";
 import { getAllContractInfo } from "../api/contracts";
+import { OracleFeedType } from "../utils/types";
+import { AggregatorAccount, SwitchboardProgram } from "@switchboard-xyz/solana.js";
 
 export async function storePriceDataService() {
     const vayooProgram = await getVayooProgramInstance();
     const connection = getConnection();
     const wallet = getWallet();
+    const switchboardProgram = await SwitchboardProgram.load(
+        "mainnet-beta",
+        connection,
+      );
     const whirlpoolClient = buildWhirlpoolClient(WhirlpoolContext.from(connection, wallet, ORCA_WHIRLPOOL_PROGRAM_ID));
-
     if (!existsSync(DATA_STORE_PATH)) {
         mkdirSync(DATA_STORE_PATH);
     }
@@ -31,22 +36,30 @@ export async function storePriceDataService() {
     allContractsInfo.map((contract) => {
         if(!contract.account.isSettling) {
             setInterval(
-                () => { storeVayooPriceData(vayooProgram.provider.connection, new PublicKey(contract.whirlpool_key), whirlpoolClient, contract.account, new PublicKey(contract.pyth_feed_key)) }
+                () => { storeVayooPriceData(vayooProgram.provider.connection, switchboardProgram, new PublicKey(contract.whirlpool_key), whirlpoolClient, contract.account, new PublicKey(contract.oracle_feed_key)) }
                 , 15000);
         }
     })
     console.log('Store Price Data Service Initialized');
 }
 
-async function storeVayooPriceData(connection: Connection, whirlpoolKey: PublicKey, whirlpoolClient: WhirlpoolClient, contractState: IdlAccounts<VayooContracts>['contractState'], pythFeed: PublicKey) {
+async function storeVayooPriceData(connection: Connection, switchboardProgram: SwitchboardProgram, whirlpoolKey: PublicKey, whirlpoolClient: WhirlpoolClient, contractState: IdlAccounts<VayooContracts>['contractState'], oracleFeedKey: PublicKey) {
     try {
-        const pythAccount = (await connection.getAccountInfo(pythFeed))?.data!;
-        const parsedPythData = parsePriceData(pythAccount);
-        const pythPrice = parsedPythData.price ?? parsedPythData.previousPrice;
+        let oraclePrice: number;
+        if (contractState.feedType == OracleFeedType.Pyth) {
+            const pythAccount = (await connection.getAccountInfo(oracleFeedKey))?.data!;
+            const parsedPythData = parsePriceData(pythAccount);
+            const pythPrice = parsedPythData.price ?? parsedPythData.previousPrice;
+            oraclePrice = pythPrice
+        } else if (contractState.feedType == OracleFeedType.Switchboard) {
+            const aggregatorAccount = new AggregatorAccount(switchboardProgram, oracleFeedKey);
+            const switchboardPrice = (await aggregatorAccount.fetchLatestValue())!.toNumber();
+            oraclePrice = switchboardPrice;
+        }
         const whirlpool = await whirlpoolClient.getPool(whirlpoolKey, true);
         const whirlpoolState = whirlpool.getData()
         const poolPrice = PriceMath.sqrtPriceX64ToPrice(whirlpoolState?.sqrtPrice!, 6, 6);
-        const assetPrice = poolPrice.toNumber() + (contractState?.startingPrice.toNumber()! / contractState.pythPriceMultiplier) - (contractState?.limitingAmplitude.toNumber()! / 2);
+        const assetPrice = poolPrice.toNumber() + (contractState?.startingPrice.toNumber()! / contractState.oraclePriceMultiplier.toNumber()) - (contractState?.limitingAmplitude.toNumber()! / 2);
         const timeNow = Math.trunc(Date.now() / 1000);
         readFile(`${DATA_STORE_PATH}/${contractState.name.replace('/', '-')}.json`, "utf-8", function (err, data) {
             if (err) {
@@ -60,8 +73,8 @@ async function storeVayooPriceData(connection: Connection, whirlpoolKey: PublicK
             let jsonData = JSON.parse(data)
             jsonData.push({
                 timestamp: timeNow,
-                assetPrice: assetPrice,
-                pythPrice: pythPrice
+                assetPrice,
+                oraclePrice
             });
             // jsonData.
             writeFile(`${DATA_STORE_PATH}/${contractState.name.replace('/', '-')}.json`, JSON.stringify(jsonData), { flag: '' }, function (err) {
