@@ -65,19 +65,31 @@ tradingViewRouter.get("/history", async function (req: Request, res: Response) {
   let lastPricePointTime = fromTime;
   const toTime = new Date(Number(req.query.to) * 1000);
   const resolution = Number(req.query.resolution) * 60;
-  const priceFeedData = (
+  const priceFeedData: any[] = (
     await dbpool.query(`
         SELECT * FROM PRICE_FEED WHERE contract_name = '${req.query.symbol}' ORDER BY time ASC`)
   )[0];
   priceFeedData.map((pricePoint: PriceFeedPoint) => {
     const pricePointTime = new Date(pricePoint.time);
+    if (priceFeedData.at(-1) == pricePoint) {
+      if (bar.lastPrice) {
+        bar.close = bar.lastPrice;
+        bars.push({
+          open: bar.open,
+          close: bar.close,
+          high: bar.high,
+          low: bar.low,
+          time: bar.time,
+        });
+        return
+      }
+    }
     if (
       pricePointTime >
       new Date(lastPricePointTime.getTime() + resolution * 1000)
     ) {
       if (bar.lastPrice) {
         bar.close = bar.lastPrice;
-        bar.time = pricePointTime.getTime() / 1000;
         bars.push({
           open: bar.open,
           close: bar.close,
@@ -91,15 +103,18 @@ tradingViewRouter.get("/history", async function (req: Request, res: Response) {
     }
     if (pricePointTime > lastPricePointTime && pricePointTime < toTime) {
       if (!bar.lastPrice) {
-        if (bar.open) {
-        } else {
+        // Only for new bars
+        if (!bar.open) {
+          // Only for first bar
           bar.open = pricePoint.asset_price;
         }
         bar.lastPrice = pricePoint.asset_price;
         bar.high = bar.lastPrice;
         bar.low = bar.lastPrice;
+        bar.time = pricePointTime.getTime() / 1000;
         lastPricePointTime = pricePointTime;
       }
+      // Update bar
       bar.lastPrice = pricePoint.asset_price;
       bar.high = Math.max(bar.lastPrice, bar.high);
       bar.low = Math.min(bar.lastPrice, bar.low);

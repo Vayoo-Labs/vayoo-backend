@@ -3,9 +3,9 @@ import dotenv from "dotenv";
 import cors from "cors"
 import { settlementService } from './services/settlement';
 import { storePriceDataService } from './services/storePriceData';
-import { priceFeedRouter } from './routes/priceFeed';
 import { contractRouter } from './routes/contracts';
 import { tradingViewRouter } from './routes/tradingView';
+import { pnlRouter } from './routes/pnl';
 dotenv.config()
 
 const app: Express = express();
@@ -22,9 +22,9 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Vayoo Backend, you are not supposed to be here');
 });
 
-app.use('/priceFeed', priceFeedRouter);
 app.use('/contracts', contractRouter);
 app.use('/tv', tradingViewRouter);
+app.use('/pnl', pnlRouter);
 
 app.listen(port, async () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);

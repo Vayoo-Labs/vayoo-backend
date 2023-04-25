@@ -2,6 +2,7 @@ import { bs58 } from "@project-serum/anchor/dist/cjs/utils/bytes";
 import { Connection } from "@solana/web3.js";
 import * as anchor from "@project-serum/anchor";
 import { RPC } from "./constants";
+import axios from "axios";
 
 export const getConnection = (endpoint: string = RPC) => {
     const endpointUrl = endpoint;
@@ -27,3 +28,18 @@ export const getWallet = () => {
     const wallet = new anchor.Wallet(USER_KEYPAIR)
     return wallet
 }
+
+
+export const fetchAxiosWithRetry = async (url: string, maxRetry = 3) => {
+  let count = 0;
+  let error = undefined;
+  while (count < maxRetry) {
+    try {
+      return await axios.get(url);
+    } catch (e) {
+      error = e;
+      count++;
+    }
+  }
+  throw error;
+};
