@@ -57,7 +57,7 @@ export async function storePriceDataService() {
           contract.account,
           new PublicKey(contract.oracle_feed_key)
         );
-      }, 15000);
+      }, 2000);
     }
   });
   console.log("Store Price Data Service Initialized");
