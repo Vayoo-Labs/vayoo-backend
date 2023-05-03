@@ -1,9 +1,38 @@
 import express, { Request, Response } from "express";
-import { getAllContractInfo } from "../api/contracts";
-import axios from "axios";
 import { fetchAxiosWithRetry } from "../utils/web3-utils";
+import { readFile } from "fs";
 
 export const pnlRouter = express.Router();
+
+pnlRouter.get(
+  "/leaderboard/:contract_name",
+  async (req: Request, res: Response) => {
+    try {
+      readFile(
+        `./_leaderboard/${req.params.contract_name}.json`,
+        { encoding: "utf-8" },
+        function (err, data) {
+          if (err) {
+            res.send(
+              JSON.stringify({
+                err: err,
+              })
+            );
+          }
+          const leaderboardData = JSON.parse(data);
+          const sortedLeaderboardData = leaderboardData.sort(comparePnlHelper);
+          res.send(JSON.stringify(sortedLeaderboardData));
+        }
+      );
+    } catch (e) {
+      res.send(
+        JSON.stringify({
+          err: e,
+        })
+      );
+    }
+  }
+);
 
 pnlRouter.get(
   "/:contract_id/:user_name",
@@ -49,4 +78,12 @@ const getIndexOfUser = (userKey: string, pnlDump: any) => {
     }
   });
   return index;
+};
+
+const comparePnlHelper = (userAPnl: any, userBPnl: any) => {
+  if (userAPnl["totalPnl"] >= userBPnl["totalPnl"]) {
+    return -1;
+  } else {
+    return 1;
+  }
 };

@@ -12,7 +12,7 @@ import { VayooContracts } from "../utils/vayoo-contracts";
 import { getContractStatePDA } from "../utils/vayoo-pda";
 import { getConnection, getWallet } from "../utils/web3-utils";
 import { parsePriceData } from "@pythnetwork/client";
-import { getAllContractInfo } from "../api/contracts";
+import { getAllContractsInfo } from "../api/contracts";
 import { OracleFeedType } from "../utils/types";
 import {
   AggregatorAccount,
@@ -32,20 +32,7 @@ export async function storePriceDataService() {
     WhirlpoolContext.from(connection, wallet, ORCA_WHIRLPOOL_PROGRAM_ID)
   );
 
-  const allContractsInfo = await Promise.all(
-    (
-      await getAllContractInfo()
-    ).map(async (contractInfo: any) => {
-      const contractStateKey = getContractStatePDA(contractInfo.name).pda;
-      return {
-        ...contractInfo,
-        publicKey: contractStateKey,
-        account: await vayooProgram.account.contractState.fetch(
-          contractStateKey
-        ),
-      };
-    })
-  );
+  const allContractsInfo = await getAllContractsInfo();
   allContractsInfo.map((contract) => {
     if (!contract.account.isSettling) {
       setInterval(() => {
