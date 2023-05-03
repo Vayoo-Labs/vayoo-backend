@@ -39,7 +39,7 @@
   },
   "nodemonConfig": {
     "ignore": [
-      "_data/*"
+      "_leaderboard/*"
     ]
   }
 }

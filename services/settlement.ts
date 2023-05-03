@@ -4,18 +4,12 @@ import { getVayooAccounts } from "../utils/vayoo-web3";
 import { DAY_IN_SECONDS } from "../utils/constants";
 import { VayooContracts } from "../utils/vayoo-contracts";
 import { Program } from "@project-serum/anchor";
-import { getAllContractInfo } from "../api/contracts";
+import { getAllContractsInfo } from "../api/contracts";
 import { getContractStatePDA } from "../utils/vayoo-pda";
 
 export async function settlementService() {
     const vayooProgram = await getVayooProgramInstance();
-    const allContractsInfo = await Promise.all((await getAllContractInfo()).map(async (contractInfo: any) => {
-        const contractStateKey = getContractStatePDA(contractInfo.name).pda;
-        return {
-            publicKey: contractStateKey,
-            account: await vayooProgram.account.contractState.fetch(contractStateKey)
-        }
-    }))
+    const allContractsInfo = await getAllContractsInfo();
     allContractsInfo.map((contract: any) => {
         const timeNow = Date.now() / 1000; // Current time in seconds
         const contractEndingTime: number = contract.account.endingTime.toNumber();

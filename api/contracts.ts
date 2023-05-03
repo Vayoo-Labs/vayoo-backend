@@ -1,14 +1,29 @@
+import { getVayooProgramInstance } from "../utils";
 import dbpool from "../utils/db";
+import { getContractStatePDA } from "../utils/vayoo-pda";
 
-export const getAllContractInfo = async () => {
-  const results = await dbpool.query(
-    "SELECT * FROM CONTRACTS LEFT JOIN MARKETS ON CONTRACTS.market_name = MARKETS.market_name ORDER BY created_on DESC"
+export const getAllContractsInfo = async () => {
+  const vayooProgram = await getVayooProgramInstance();
+  return await Promise.all(
+    (
+      await getAllContracts()
+    ).map(async (contractInfo: any) => {
+      const contractStateKey = getContractStatePDA(contractInfo.name).pda;
+      return {
+        ...contractInfo,
+        publicKey: contractStateKey,
+        account: await vayooProgram.account.contractState.fetch(
+          contractStateKey
+        ),
+      };
+    })
   );
-  return results[0];
 };
 
 export const getAllContracts = async () => {
-  const results = await dbpool.query("SELECT * FROM CONTRACTS");
+  const results = await dbpool.query(
+    "SELECT * FROM CONTRACTS LEFT JOIN MARKETS ON CONTRACTS.market_name = MARKETS.market_name ORDER BY created_on DESC"
+  );
   return results[0];
 };
 

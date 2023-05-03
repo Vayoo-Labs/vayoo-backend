@@ -6,6 +6,7 @@ import { storePriceDataService } from './services/storePriceData';
 import { contractRouter } from './routes/contracts';
 import { tradingViewRouter } from './routes/tradingView';
 import { pnlRouter } from './routes/pnl';
+import { storeAllLeaderboard } from './services/leaderboard';
 dotenv.config()
 
 const app: Express = express();
@@ -30,5 +31,6 @@ app.listen(port, async () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
   await settlementService()
   await storePriceDataService()
+  await storeAllLeaderboard()
 });
 
