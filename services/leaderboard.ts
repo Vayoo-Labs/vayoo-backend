@@ -73,6 +73,7 @@ async function storeContractLeaderboard(
       leaderboard.push({
         userKey: userKey,
         totalPnl: totalPnl,
+        currentPos: pnlDump["Current_pos"][index]
       });
     });
     writeFile(`./_leaderboard/${contractState.name}.json`, JSON.stringify(leaderboard), function (err) {
