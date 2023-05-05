@@ -35,6 +35,36 @@ pnlRouter.get(
 );
 
 pnlRouter.get(
+  "/rank/:contract_name/:user_name",
+  async function (req: Request, res: Response) {
+    try {
+      readFile(
+        `./_leaderboard/${req.params.contract_name}.json`,
+        { encoding: "utf-8" },
+        function (err, data) {
+          if (err) {
+            res.send(
+              JSON.stringify({
+                err: err,
+              })
+            );
+          }
+          const leaderboardData = JSON.parse(data);
+          const index = getRankOfUser(req.params.user_name, leaderboardData)!;
+          res.send(JSON.stringify(index + 1));
+        }
+      );
+    } catch (e) {
+      res.send(
+        JSON.stringify({
+          err: e,
+        })
+      );
+    }
+  }
+);
+
+pnlRouter.get(
   "/:contract_id/:user_name",
   async function (req: Request, res: Response) {
     try {
@@ -79,6 +109,18 @@ const getIndexOfUser = (userKey: string, pnlDump: any) => {
   });
   return index;
 };
+
+const getRankOfUser = (userKey: string, leaderboardData: any) => {
+  let index;
+  const sortedLeaderboardData: any[] = leaderboardData.sort(comparePnlHelper);
+  sortedLeaderboardData.map((item: any, _index) => {
+    if ((item["userKey"] == userKey)) {
+      index = _index;
+      return;
+    }
+  });
+  return index;
+}
 
 const comparePnlHelper = (userAPnl: any, userBPnl: any) => {
   if (userAPnl["totalPnl"] >= userBPnl["totalPnl"]) {
