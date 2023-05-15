@@ -18,6 +18,7 @@ pnlRouter.get(
                 err: err,
               })
             );
+            return
           }
           const leaderboardData = JSON.parse(data);
           const sortedLeaderboardData = leaderboardData.sort(comparePnlHelper);
@@ -48,6 +49,7 @@ pnlRouter.get(
                 err: err,
               })
             );
+            return
           }
           const leaderboardData = JSON.parse(data);
           const index = getRankOfUser(req.params.user_name, leaderboardData)!;
