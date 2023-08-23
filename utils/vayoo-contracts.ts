@@ -1054,6 +1054,61 @@ export type VayooContracts = {
           "type": "u64"
         }
       ]
+    },
+    {
+      "name": "adminSetsAmplitude",
+      "docs": [
+        "* Withdraw Collateral (USDC) from vault -> user"
+      ],
+      "accounts": [
+        {
+          "name": "contractAuthority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "contractState",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amplitudeTest",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "adminTriggersSettleMode",
+      "accounts": [
+        {
+          "name": "contractAuthority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "contractState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "switchboardFeed",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "pythFeed",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "testSettlementPrice",
+          "type": "u64"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -1107,7 +1162,7 @@ export type VayooContracts = {
             "type": "publicKey"
           },
           {
-            "name": "feedType",
+            "name": "oracleFeedType",
             "type": "u8"
           },
           {
@@ -1120,6 +1175,10 @@ export type VayooContracts = {
           },
           {
             "name": "limitingAmplitude",
+            "type": "u64"
+          },
+          {
+            "name": "bandsShift",
             "type": "u64"
           },
           {
@@ -1156,6 +1215,10 @@ export type VayooContracts = {
           },
           {
             "name": "globalCurrentIssuedLcontract",
+            "type": "u64"
+          },
+          {
+            "name": "testMode",
             "type": "u64"
           },
           {
@@ -1453,6 +1516,11 @@ export type VayooContracts = {
       "code": 6027,
       "name": "InvalidOraclefeed",
       "msg": "Invalid Feed"
+    },
+    {
+      "code": 6028,
+      "name": "NoTestInProd",
+      "msg": "Cant be used in prod mode"
     }
   ]
 };
@@ -2513,6 +2581,61 @@ export const IDL: VayooContracts = {
           "type": "u64"
         }
       ]
+    },
+    {
+      "name": "adminSetsAmplitude",
+      "docs": [
+        "* Withdraw Collateral (USDC) from vault -> user"
+      ],
+      "accounts": [
+        {
+          "name": "contractAuthority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "contractState",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amplitudeTest",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "adminTriggersSettleMode",
+      "accounts": [
+        {
+          "name": "contractAuthority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "contractState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "switchboardFeed",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "pythFeed",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "testSettlementPrice",
+          "type": "u64"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -2566,7 +2689,7 @@ export const IDL: VayooContracts = {
             "type": "publicKey"
           },
           {
-            "name": "feedType",
+            "name": "oracleFeedType",
             "type": "u8"
           },
           {
@@ -2579,6 +2702,10 @@ export const IDL: VayooContracts = {
           },
           {
             "name": "limitingAmplitude",
+            "type": "u64"
+          },
+          {
+            "name": "bandsShift",
             "type": "u64"
           },
           {
@@ -2615,6 +2742,10 @@ export const IDL: VayooContracts = {
           },
           {
             "name": "globalCurrentIssuedLcontract",
+            "type": "u64"
+          },
+          {
+            "name": "testMode",
             "type": "u64"
           },
           {
@@ -2912,6 +3043,11 @@ export const IDL: VayooContracts = {
       "code": 6027,
       "name": "InvalidOraclefeed",
       "msg": "Invalid Feed"
+    },
+    {
+      "code": 6028,
+      "name": "NoTestInProd",
+      "msg": "Cant be used in prod mode"
     }
   ]
 };

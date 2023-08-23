@@ -60,21 +60,7 @@ async function storeVayooPriceData(
 ) {
   try {
     let oraclePrice: number;
-    if (contractState.feedType == OracleFeedType.Pyth) {
-      const pythAccount = (await connection.getAccountInfo(oracleFeedKey))
-        ?.data!;
-      const parsedPythData = parsePriceData(pythAccount);
-      const pythPrice = parsedPythData.price ?? parsedPythData.previousPrice;
-      oraclePrice = pythPrice;
-    } else if (contractState.feedType == OracleFeedType.Switchboard) {
-      const aggregatorAccount = new AggregatorAccount(
-        switchboardProgram,
-        oracleFeedKey
-      );
-      const switchboardPrice =
-        (await aggregatorAccount.fetchLatestValue())!.toNumber();
-      oraclePrice = switchboardPrice;
-    }
+    let assetPrice: number;
     const whirlpool = await whirlpoolClient.getPool(whirlpoolKey, true);
     const whirlpoolState = whirlpool.getData();
     const poolPrice = PriceMath.sqrtPriceX64ToPrice(
@@ -82,11 +68,34 @@ async function storeVayooPriceData(
       6,
       6
     );
-    const assetPrice =
-      poolPrice.toNumber() +
-      contractState?.startingPrice.toNumber()! /
-        contractState.oraclePriceMultiplier.toNumber() -
-      contractState?.limitingAmplitude.toNumber()! / 2;
+
+    if (contractState.oracleFeedType == OracleFeedType.Pyth) {
+      const pythAccount = (await connection.getAccountInfo(oracleFeedKey))
+        ?.data!;
+      const parsedPythData = parsePriceData(pythAccount);
+      const pythPrice = parsedPythData.price ?? parsedPythData.previousPrice;
+      oraclePrice = pythPrice;
+      assetPrice =
+        poolPrice.toNumber() +
+        contractState?.startingPrice.toNumber()! /
+          contractState.oraclePriceMultiplier.toNumber() -
+        contractState?.limitingAmplitude.toNumber()! / 2;
+    } else if (contractState.oracleFeedType == OracleFeedType.Switchboard) {
+      const aggregatorAccount = new AggregatorAccount(
+        switchboardProgram,
+        oracleFeedKey
+      );
+      const switchboardPrice =
+        (await aggregatorAccount.fetchLatestValue())!.toNumber();
+      oraclePrice = switchboardPrice;
+      assetPrice =
+        poolPrice.toNumber() +
+        contractState?.startingPrice.toNumber()! /
+          contractState.oraclePriceMultiplier.toNumber() -
+        contractState?.limitingAmplitude.toNumber()! /
+          2 /
+          contractState.oraclePriceMultiplier.toNumber();
+    }
     await dbpool.query(`INSERT INTO PRICE_FEED(
             contract_name,
             asset_price,
@@ -96,7 +105,7 @@ async function storeVayooPriceData(
             VALUES 
             (
             '${contractState.name}',
-            ${assetPrice.toFixed(10)},
+            ${assetPrice!.toFixed(10)},
             ${oraclePrice!.toFixed(10)},
             FROM_UNIXTIME(${Date.now()} / 1000)
         )`);
