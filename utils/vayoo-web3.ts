@@ -62,9 +62,9 @@ export async function getVayooAccounts(contractName: string, userKey: PublicKey)
             true
         );
 
-        if (contractState.feedType == OracleFeedType.Pyth) {
+        if (contractState.oracleFeedType == OracleFeedType.Pyth) {
             pythFeed = contractState.oracleFeedKey
-        } else if (contractState.feedType == OracleFeedType.Switchboard) {
+        } else if (contractState.oracleFeedType == OracleFeedType.Switchboard) {
             switchboardFeed = contractState.oracleFeedKey
         }
         
