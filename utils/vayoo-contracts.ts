@@ -1174,15 +1174,7 @@ export type VayooContracts = {
             "type": "u64"
           },
           {
-            "name": "vayooPrecisions",
-            "type": "u8"
-          },
-          {
             "name": "limitingAmplitude",
-            "type": "u64"
-          },
-          {
-            "name": "bandsShift",
             "type": "u64"
           },
           {
@@ -1226,11 +1218,19 @@ export type VayooContracts = {
             "type": "u64"
           },
           {
+            "name": "bandsShift",
+            "type": "u64"
+          },
+          {
+            "name": "vayooPrecisions",
+            "type": "u8"
+          },
+          {
             "name": "reserved",
             "type": {
               "array": [
                 "u64",
-                13
+                10
               ]
             }
           }
@@ -2710,15 +2710,7 @@ export const IDL: VayooContracts = {
             "type": "u64"
           },
           {
-            "name": "vayooPrecisions",
-            "type": "u8"
-          },
-          {
             "name": "limitingAmplitude",
-            "type": "u64"
-          },
-          {
-            "name": "bandsShift",
             "type": "u64"
           },
           {
@@ -2762,11 +2754,19 @@ export const IDL: VayooContracts = {
             "type": "u64"
           },
           {
+            "name": "bandsShift",
+            "type": "u64"
+          },
+          {
+            "name": "vayooPrecisions",
+            "type": "u8"
+          },
+          {
             "name": "reserved",
             "type": {
               "array": [
                 "u64",
-                13
+                10
               ]
             }
           }
