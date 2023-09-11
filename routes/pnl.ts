@@ -75,8 +75,10 @@ pnlRouter.get(
           `http://vps734305.ovh.net/vayoo/pnls_vayoo_${req.params.contract_id}.json`
         )
       ).data;
-      const index = getIndexOfUser(req.params.user_name, pnlDump)!;
-      if (index == undefined) {
+      const userPnlDump = pnlDump.find((userPnl: any) => {
+        return userPnl["User"] == req.params.user_name
+      });
+      if (!userPnlDump) {
         res.send(
           JSON.stringify({
             err: "User Not Found",
@@ -85,10 +87,10 @@ pnlRouter.get(
         return;
       }
       const userPnl = {
-        userKey: pnlDump["User"][index],
-        closedPnl: pnlDump["Closed_pnl"][index],
-        currentPos: pnlDump["Current_pos"][index],
-        avgCurrentPrice: pnlDump["Avg_current_price"][index],
+        userKey:userPnlDump["User"],
+        closedPnl: userPnlDump["Closed_pnl"],
+        currentPos: userPnlDump["Current_pos"],
+        avgCurrentPrice: userPnlDump["Avg_current_price"],
       };
       res.send(JSON.stringify(userPnl));
     } catch (e) {
@@ -100,17 +102,6 @@ pnlRouter.get(
     }
   }
 );
-
-const getIndexOfUser = (userKey: string, pnlDump: any) => {
-  let index;
-  Object.values(pnlDump["User"]).map((userKeyItem, _index) => {
-    if ((userKeyItem as string) == userKey) {
-      index = _index;
-      return;
-    }
-  });
-  return index;
-};
 
 const getRankOfUser = (userKey: string, leaderboardData: any) => {
   let index;
