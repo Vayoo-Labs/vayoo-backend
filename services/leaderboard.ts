@@ -33,6 +33,7 @@ export async function storeAllLeaderboard() {
           contract.account
         );
       }, 5000);
+  console.log("Leaderboard Service Initialized");
   });
 }
 
@@ -55,25 +56,25 @@ async function storeContractLeaderboard(
       6,
       6
     ).toNumber();
-    Object.values(pnlDump["User"]).map((userKey, index) => {
-      const closedPnl = pnlDump["Closed_pnl"][index];
+    Object.values(pnlDump).map((userPnl: any, index) => {
+      const closedPnl = userPnl["Closed_pnl"];
       let openPnl = 0;
-      if (pnlDump["Current_pos"][index] == 0) {
+      if (userPnl["Current_pos"] == 0) {
         openPnl = 0;
-      } else if (pnlDump["Current_pos"][index] < 0) {
+      } else if (userPnl["Current_pos"] < 0) {
         openPnl =
-          (pnlDump["Avg_current_price"][index] - poolPrice) *
-          Math.abs(pnlDump["Current_pos"][index]);
-      } else if (pnlDump["Current_pos"][index] > 0) {
+          (userPnl["Avg_current_price"] - poolPrice) *
+          Math.abs(userPnl["Current_pos"]);
+      } else if (userPnl["Current_pos"] > 0) {
         openPnl =
-          (poolPrice - pnlDump["Avg_current_price"][index]) *
-          Math.abs(pnlDump["Current_pos"][index]);
+          (poolPrice - userPnl["Avg_current_price"]) *
+          Math.abs(userPnl["Current_pos"]);
       }
       const totalPnl = closedPnl + openPnl;
       leaderboard.push({
-        userKey: userKey,
+        userKey: userPnl["User"],
         totalPnl: totalPnl,
-        currentPos: pnlDump["Current_pos"][index]
+        currentPos: userPnl["Current_pos"]
       });
     });
     writeFile(`./_leaderboard/${contractState.name}.json`, JSON.stringify(leaderboard), function (err) {
