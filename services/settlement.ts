@@ -15,7 +15,7 @@ export async function settlementService() {
         const contractEndingTime: number = contract.account.endingTime.toNumber();
         const timeToMaturity = contractEndingTime - timeNow;
         console.log("Contract Name :%s, Maturity: %d, Settling: %s", contract.account.name, timeToMaturity, contract.account.isSettling);
-        if (!contract.account.isSettling && timeToMaturity > -DAY_IN_SECONDS) { // If timeToMaturity  < day_in_seconds, don't try to trigger
+        if (!contract.account.isSettling && timeToMaturity > -DAY_IN_SECONDS) { // If timeToMaturity > day_in_seconds, don't try to trigger
             if (!(timeToMaturity > 604800)) // Greater than 7 days
             setTimeout(async () => await triggerAndSettle(contract.publicKey), (timeToMaturity + 5) * 1000)
         }
